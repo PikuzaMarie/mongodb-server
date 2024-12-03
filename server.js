@@ -64,3 +64,21 @@ app.post("/profiles", (req, res) => {
 		.then((result) => handleSuccess(res, 201, result))
 		.catch(() => handleError(res, "Error creating a new profile"));
 });
+
+app.patch("/profiles/:id", (req, res) => {
+	// console.log("Request body:", req.body);
+	// console.log("Request id:", req.params.id);
+	if (ObjectId.isValid(req.params.id)) {
+		const id = new ObjectId(req.params.id);
+		db.collection("profiles")
+			.updateOne({ _id: id }, { $set: req.body })
+			.then((result) => {
+				res.status(200).json(result);
+			})
+			.catch(() =>
+				handleError(res, 500, "Error updating profile with this id")
+			);
+	} else {
+		handleError(res, 500, "Wrong id");
+	}
+});
