@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { connectToDb, getDb } = require("./db");
+const { ObjectId } = require("mongodb");
 
 const PORT = 3000;
 
@@ -19,5 +20,39 @@ connectToDb((err) => {
 		db = getDb();
 	} else {
 		console.log(`Error connection to db: ${err}`);
+	}
+});
+
+const handleSuccess = (res, statusCode, data) => {
+	res.status(statusCode).json(data);
+};
+
+const handleError = (res, statusCode, errMsg) => {
+	res.status(statusCode).json(errMsg);
+};
+
+app.get("/profiles", (req, res) => {
+	db.collection("profiles")
+		.find() //returns a cursor
+		.toArray()
+		.then((profiles) => {
+			handleSuccess(res, 200, profiles);
+		})
+		.catch(() => {
+			handleError(res, 500, "Error fetching profiles");
+		});
+});
+
+app.get("/profiles/:id", (req, res) => {
+	if (ObjectId.isValid(req.params.id)) {
+		const id = new ObjectId(req.params.id);
+		db.collection("profiles")
+			.findOne({ _id: id })
+			.then((doc) => handleSuccess(res, 200, doc))
+			.catch(() =>
+				handleError(res, 500, "Error fetching profiles with this id")
+			);
+	} else {
+		handleError(res, 500, "Wrong id");
 	}
 });
