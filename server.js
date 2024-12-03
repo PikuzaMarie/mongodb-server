@@ -7,6 +7,7 @@ const PORT = 3000;
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 let db;
 
@@ -55,4 +56,11 @@ app.get("/profiles/:id", (req, res) => {
 	} else {
 		handleError(res, 500, "Wrong id");
 	}
+});
+
+app.post("/profiles", (req, res) => {
+	db.collection("profiles")
+		.insertOne(req.body)
+		.then((result) => handleSuccess(res, 201, result))
+		.catch(() => handleError(res, "Error creating a new profile"));
 });
