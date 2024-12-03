@@ -82,3 +82,19 @@ app.patch("/profiles/:id", (req, res) => {
 		handleError(res, 500, "Wrong id");
 	}
 });
+
+app.delete("/profiles/:id", (req, res) => {
+	if (ObjectId.isValid(req.params.id)) {
+		const id = new ObjectId(req.params.id);
+		db.collection("profiles")
+			.deleteOne({ _id: id })
+			.then((result) => {
+				res.status(200).json(result);
+			})
+			.catch(() =>
+				handleError(res, 500, "Error updating profile with this id")
+			);
+	} else {
+		handleError(res, 500, "Wrong id");
+	}
+});
